@@ -4,8 +4,15 @@
         Below you can see the list of files in the ODIL database.
     </em></div>
 
-    <ul class="list-group">
-      <fileList/>
-    </ul>
+    <div class="panel panel-default">
+      <div class="panel-heading">Files</div>
+      <div class="panel-body">
+
+        <ul class="list-group">
+          <fileList/>
+        </ul>
+
+      </div>
+    </div>
 
 </apply>
