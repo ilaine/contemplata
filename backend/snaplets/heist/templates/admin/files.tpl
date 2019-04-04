@@ -18,8 +18,27 @@
           </li>
         </ul>
 
+        <bind tag="fileTable">
+          <table class="table table-striped">
+            <thead>
+              <tr><fileTableCols/></tr>
+            </thead>
+            <tbody>
+              <panelBody/>
+            </tbody>
+          </table>
+        </bind>
+
         <div class="tab-content">
+          <bind tag="fileTableCols">
+            <th>Origin</th>
+            <th>Syntax</th>
+            <th>Semantics</th>
+            <th>Done</th>
+            <actions/>
+          </bind>
           <div class="tab-pane active" id="inprogress">
+            <fileTable/>
             <ul class="list-group">
               <fileList/>
             </ul>
