@@ -56,3 +56,12 @@
     </ul>
   </div>
 </div>
+
+<script>
+  $(document).ready(function() {
+    // get current URL path and assign 'active' class
+  	var pathname = window.location.pathname; // returns /user/guide
+    var link = pathname.slice(1) // returns user/guide
+  	$('.nav > li > a[href="'+link+'"]').parent().addClass('active');
+  })
+</script>
