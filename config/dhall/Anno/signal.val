@@ -9,7 +9,7 @@ in
   
     -- Possible types
   , typ =
-      { among = ["Locative", "Measure", "Boundary", "Orientation"]
+      { among = ["Locative", "Measure", "Boundary", "Orientation", "Other"]
       , def = ["Locative"] : Optional Text
       }
   
