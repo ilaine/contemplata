@@ -23,8 +23,8 @@ in
         }
       , { _1 = "Inquisit"
         , _2 = closed
-          { among = ["TQuest", "Quest", "Order", "TOrder", "Decl"]
-          , def = ["Decl"] : Optional Text
+          { among = ["Yes", "No"]
+          , def = ["No"] : Optional Text
           , required = True }
         }
       , { _1 = "Time"
