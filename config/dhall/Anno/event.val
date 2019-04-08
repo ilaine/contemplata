@@ -6,15 +6,15 @@ in let
   anchor = ./Attr/anchor.fun
 in
   { name = "Event"
-  
+
     -- Possible types
   , typ =
-      { among = ["Process", "State", "Transition"]
+      { among = ["Process", "State", "Transition", "N/A"]
       , def = ["Process"] : Optional Text
       }
-  
+
     -- Attributes
-  , attributes = 
+  , attributes =
       [ { _1 = "Class"
         , _2 = closed
           { among = ["Occurrence", "Perception", "Reporting", "Aspectual", "State", "IState", "IAction", "Cause", "EventContainer"]
@@ -47,13 +47,13 @@ in
         }
       , { _1 = "Mood"
         , _2 = closed
-          { among = ["Subjunctive", "Conditional"]
+          { among = ["Subjunctive", "Conditional", "N/A"]
           , def = [] : Optional Text
           , required = False }
         }
       , { _1 = "Modality"
         , _2 = closed
-          { among = ["Certainty", "Conjectural", "Necessity", "Obligation", "Permission", "Possibility", "Probability"]
+          { among = ["Certainty", "Conjectural", "Necessity", "Obligation", "Permission", "Possibility", "Probability", "N/A"]
           , def = [] : Optional Text
           , required = False }
         }
