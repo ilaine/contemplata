@@ -29,13 +29,13 @@ in
         }
       , { _1 = "Time"
         , _2 = closed
-          { among = ["Future", "Past", "Present", "Omni", "Zero"]
+          { among = ["Future", "Past", "Present", "Omni", "Zero", "Other"]
           , def = ["Present"] : Optional Text
           , required = False }
         }
       , { _1 = "Aspect"
         , _2 = closed
-          { among = ["Progressive", "Perfective", "Prospective", "Imperfective"]
+          { among = ["Progressive", "Perfective", "Prospective", "Imperfective", "Other"]
           , def = [] : Optional Text
           , required = False }
         }
