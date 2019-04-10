@@ -35,7 +35,7 @@ in
         }
       , { _1 = "Aspect"
         , _2 = closed
-          { among = ["Progressive", "Perfective", "Prospective", "Imperfective", "Other"]
+          { among = ["Progressive", "Perfective", "Prospective", "Imperfective", "None" "Other"]
           , def = [] : Optional Text
           , required = False }
         }
@@ -47,13 +47,13 @@ in
         }
       , { _1 = "Mood"
         , _2 = closed
-          { among = ["Subjunctive", "Conditional", "N/A"]
+          { among = ["Subjunctive", "Conditional", "None", "N/A"]
           , def = [] : Optional Text
           , required = False }
         }
       , { _1 = "Modality"
         , _2 = closed
-          { among = ["Certainty", "Conjectural", "Necessity", "Obligation", "Permission", "Possibility", "Probability", "N/A"]
+          { among = ["Certainty", "Conjectural", "Necessity", "Obligation", "Permission", "Possibility", "Probability", "None", "N/A"]
           , def = [] : Optional Text
           , required = False }
         }
@@ -62,7 +62,7 @@ in
         }
       , { _1 = "Mod"
         , _2 = closed
-          { among = ["Start", "Mid", "End"]
+          { among = ["Start", "Mid", "End", "None"]
           , def = [] : Optional Text
           , required = False }
         }
