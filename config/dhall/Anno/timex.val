@@ -6,13 +6,13 @@ in let
   anchor = ./Attr/anchor.fun
 in
   { name = "Timex"
-  
+
     -- Possible types
   , typ =
       { among = ["Date", "Time", "Duration", "Set"]
       , def = ["Time"] : Optional Text
       }
-  
+
     -- Attributes
   , attributes =
       [ { _1 = "Calendar"
@@ -21,6 +21,12 @@ in
           , def = ["ISO"] : Optional Text
           , required = True }
         }
+        , { _1 = "Inquisit"
+          , _2 = closed
+            { among = ["Yes", "No"]
+            , def = ["No"] : Optional Text
+            , required = True }
+          }
       , { _1 = "Function"
         , _2 = closed
           { among = ["CreationTime", "ExpirationTime", "ModificationTime", "PublicationTime", "ReleaseTime", "ReceptionTime"]
