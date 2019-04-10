@@ -35,7 +35,7 @@ in
         }
       , { _1 = "Aspect"
         , _2 = closed
-          { among = ["Progressive", "Perfective", "Prospective", "Imperfective", "None" "Other"]
+          { among = ["Progressive", "Perfective", "Prospective", "Imperfective", "None", "Other"]
           , def = [] : Optional Text
           , required = False }
         }
