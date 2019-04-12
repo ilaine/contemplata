@@ -47,13 +47,13 @@ in
         }
       , { _1 = "Mood"
         , _2 = closed
-          { among = ["Subjunctive", "Conditional", "None", "N/A"]
+          { among = ["Subjunctive", "Conditional", "None"]
           , def = [] : Optional Text
           , required = False }
         }
       , { _1 = "Modality"
         , _2 = closed
-          { among = ["Certainty", "Conjectural", "Necessity", "Obligation", "Permission", "Possibility", "Probability", "None", "N/A"]
+          { among = ["Certainty", "Conjectural", "Necessity", "Obligation", "Permission", "Possibility", "Probability", "None"]
           , def = [] : Optional Text
           , required = False }
         }
