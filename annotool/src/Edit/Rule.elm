@@ -217,20 +217,24 @@ allRules =
           , middle = star any
           , right = Epsilon
           , result = "Sint" }
---     , compile
---           { parent = \x ->
---                 List.member x ["SENT", "VPinf", "Srel"]
---           , left = star <| rootSat <| \label -> label /= "VN"
---           , middle = seq (root "VN") (root "VPinf")
---           , right = Epsilon -- star <| rootSat <| always True
---           , result = "VP" }
---     , compile
---           { parent = \x ->
---                 List.member x ["VPinf", "Ssub"]
---           , left = Epsilon
---           , middle = seq (root "VN") (root "NP")
---           , right = Epsilon
---           , result = "VP" }
+    , compile
+          { parent = \x ->
+                List.member x ["COORD"]
+          , left = seq
+              (optional <| root "PUNC")
+              (rootSat <| \x -> List.member x ["CC"])
+          , middle = star any
+          , right = Epsilon
+          , result = "Sint" }
+    , compile
+          { parent = \x ->
+                List.member x ["VPinf"]
+          , left = seq
+              (optional <| root "PUNC")
+              (rootSat <| \x -> List.member x ["P", "MWP"])
+          , middle = star any
+          , right = Epsilon
+          , result = "Sint" }
     ]
 
 
