@@ -54,7 +54,7 @@ type Msg
 --   | ParseSentPos Server.ParserTyp -- ^ Reparse the sentence in focus, preserve POList (String, String)S tags
   | ParseSentPos Server.ParserTyp -- ^ Reparse the selected sub-sentence(s) in focus, preserve the POS tags
   | ParseSentCons Server.ParserTyp  -- ^ Reparse the sentence in focus with the selected nodes as constraints
-  | ApplyRules -- ^ Apply the (flattening) rules
+  | ApplyRules -- ^ Apply the (deepening) rules
   | CtrlDown
   | CtrlUp
   -- | Connect
