@@ -4,95 +4,80 @@ module Edit.Model exposing
     TreeMap, Sent, Token, File, Turn
   , Node(..), NodeAnnoTyp
   , InternalNode, LeafNode
-  -- , LinkData
   , isNode, isLeaf
   , concatToks, sentToString, emptyToken
+  
   -- Model types:
   , Model, Dim, Window, SideWindow(..), Drag
   , Workspace
+  
   -- Other:
   , selectWin, dragOn, getTree, getTreeMay, getReprId, selAll
   , getPosition, nextTree, nextTree_, prevTree, moveCursor, moveCursorTo
   , treeNum, treePos
+  
   -- Sentence:
   , getToken, getTokenMay, getSent, getSubSent
+  
   -- History:
   , freezeHist, undo, redo
+  
   -- Selection:
   , updateSelection, setSelection
+  
   -- Logging:
   , log
+  
   -- Nodes:
   , getNode, setNode, updateNode
   , getNodeTyp, NodeTyp(..)
+  
   -- TODO (think of the name):
   , concatWords, dumify, isDummyTree
   , splitTree, join, getPart
   , restoreToken, visiblePositions
   , syncForestWithSent, syncForestWithSentPos
+  
   -- Labels:
   , getLabel, setLabel
   -- Comments:
   , getComment, setComment
 
---   -- Event lenses:
---   , eventClass, eventType, eventTime, eventAspect, eventPolarity, eventMood
---   , eventModality -- eventComment
---   , eventInquisit, eventCardinality, eventMod
---   , eventPred
-
   -- Entity modification:
   , setEntityType
   , setEntityAttr
   , setEntityAnchor
-
   -- Relation modification:
   , setRelationType
   , setRelationAttr
   , setRelationAnchor
-
-  -- -- Event modification:
-  -- , setEventAttr
-  -- -- Signal modification:
-  -- , setSignalAttr
-  -- -- Timex modification:
-  -- , setTimexAttr
-  -- , setTimexType, setTimexAnchor, setTimexBeginPoint, setTimexEndPoint
-  -- , remTimexAnchor, remTimexBeginPoint, remTimexEndPoint
-
---   -- Signal lenses:
---   , signalType
-
---   -- Timex lenses:
---   , timexCalendar, timexType, timexPred, timexFunctionInDocument
---   , timexTemporalFunction, timexLingValue, timexValue, timexMod
---   , timexQuant, timexFreq
-
-
+  
   -- Node selection:
   , selectNode, selectNodeAux
   -- Links
   , mkRelationSel
-  -- , connect -- LinkInfo
+  
   -- Tree modifications:
   , attachSel, deleteSel, deleteSelTree, addSel, swapSel
+ 
   -- Node annotation:
-  -- , mkEventSel, mkSignalSel, mkTimexSel
   , mkEntitySel
   -- Popup-related
   , setFilesPopup, changeSplit, performSplit
-  -- -- , changeTypeSel
+  
   -- Lenses:
   , top, bot, dim, drag, side, pos, height, widthProp, heightProp
   , nodeId, nodeVal, treeMap, sentMap, partMap, reprMap, trees, fileLens
   , workspaceLens, windowLens, fileId, selMain, linkMap
+  
   -- Pseudo-lenses:
-  -- , setTrees
   , getFileId
+  
   -- Various:
   , setTreeCheck, setForestCheck, setSentCheck, getWords, subTreeAt, nodesIn
   , swapFile, swapWorkspaces, moveToFirst, moveToTree, moveToFile
   , swapFiles
+  
   -- JSON decoding:
   , treeMapDecoder, fileDecoder, treeDecoder, sentDecoder, nodeDecoder
   -- JSON encoding:
@@ -113,7 +98,6 @@ import Either exposing (..)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
--- import Json.Decode.Pipeline as DePipe
 
 import Util as Util
 import Config as Cfg
@@ -179,9 +163,6 @@ concatToks =
 
 sentToString : Sent -> String
 sentToString = .orth << concatToks
---     =  String.trim
---     << String.concat
---     << L.map (\tok -> (if tok.afterSpace then " " else "") ++ tok.orth)
 
 
 type alias TreeMap = D.Dict PartId (R.Tree Node)
@@ -192,10 +173,6 @@ type alias Turn =
   { speaker : List String
   , trees : D.Dict TreeIdBare (Maybe Int)
   }
-
-
--- -- | Leaf identifier
--- type alias LeafId = Int
 
 
 type alias InternalNode =
@@ -225,10 +202,6 @@ type Node
 
 
 type alias NodeAnnoTyp = Anno.Entity
--- type NodeAnnoTyp
---     = NodeEvent Anno.Event
---     | NodeSignal Anno.Signal
---     | NodeTimex Anno.Timex
 
 
 isNode : Node -> Bool
@@ -247,37 +220,6 @@ wellFormed (R.Node x ts) =
   case ts of
     [] -> isLeaf x
     _  -> isNode x && Util.and (L.map wellFormed ts)
-
-
--- ---------------------------------------------------
--- -- LinkData
--- ---------------------------------------------------
---
---
--- -- | Data related to a link.
--- type alias LinkData =
---   { signalAddr : Maybe Addr
---     -- ^ Address of the corresponding signal, if any
---   }
---
---
--- -- | The default link data value.
--- linkDataDefault : LinkData
--- linkDataDefault =
---   { signalAddr = Nothing
---   }
---
---
--- -- | Switch the signal:
--- --
--- -- * If the same signal is already assigned to the link, switch it off
--- -- * Otherwise, add the new signal to the link (even if another signal
--- --   was previously set)
--- switchSignal : Addr -> LinkData -> LinkData
--- switchSignal signal r =
---   if Just signal == r.signalAddr
---   then {r | signalAddr = Nothing}
---   else {r | signalAddr = Just signal}
 
 
 ---------------------------------------------------
@@ -367,7 +309,6 @@ type alias Window =
   -- | Main selected node (if any)
   , selMain : Maybe NodeId
   -- | Auxiliary selected nodes;
-  -- invariant: selMain not in selAux
   , selAux : S.Set NodeId
 
   -- | Window's position shift
@@ -391,12 +332,6 @@ type alias Dim =
   , widthProp : Int
   , heightProp : Int
   }
-
-
--- -- | Link between two trees.
--- type alias Link =
---   { from : (TreeId, NodeId)
---   , to : (TreeId, NodeId) }
 
 
 -- Information about dragging.
@@ -460,9 +395,6 @@ saveModif fileId atom model =
             }
     in
         Lens.update (fileInfoLensAlt fileId) update model
---   { model
---       | undoLast = atom :: model.undoLast
---       , redoHist = [] }
 
 
 -- | Freeze the current (last) sequence of history modifications.
@@ -748,22 +680,6 @@ stripPrefix pref x =
 ---------------------------------------------------
 
 
--- -- | Set a tree under a given ID.
--- updateTree : TreeId -> (R.Tree Node -> R.Tree Node) -> Model -> Model
--- updateTree treeId update model =
---   let
---     alter v = case v of
---       Nothing -> Debug.crash "Model.updateTree: no tree with the given ID"
---       Just (sent, tree) -> Just (sent, update tree)
---     oldTree = case D.get treeId model.trees of
---       Nothing -> Debug.crash "Model.updateTree: no tree with the given ID"
---       Just (sent_, tree) -> tree
---     newTrees = D.update treeId alter model.trees
---   in
---     {model | trees = newTrees}
---        |> saveModif (TreeModif {treeId = treeId, restoreTree = oldTree})
-
-
 -- | Set the tree under a given ID. Does not require that the tree already
 -- exists (in contrast to `updateTree`, for example).
 -- NOTE: this is not really a high-level function, from the high-level point of
@@ -915,19 +831,7 @@ deleteLinks win delLinks model =
            { addLinkSet = oldLinks
            , delLinkSet = D.empty }
          )
-
-
--- -- | Add links.
--- connect : Model -> Model
--- connect model = model |>
---   case (model.focus, model.top.selMain, model.bot.selMain) of
---     (Top, Just topNode, Just botNode) ->
---       connectHelp {nodeFrom = botNode, nodeTo = topNode, focusTo = Top}
---     (Bot, Just topNode, Just botNode) ->
---       connectHelp {nodeFrom = topNode, nodeTo = botNode, focusTo = Bot}
---     _ -> identity
---     -- _ -> Debug.crash "ALALALAL"
-
+         
 
 -- | Create a relation between the two main selected nodes.
 mkRelationSel : AnnoCfg.Entity -> Model -> Model
@@ -983,52 +887,6 @@ connectHelp {nodeFrom, nodeTo, focusTo, entCfg} model =
       then Lens.update (fileLens Top => linkMap) alter model
           |> saveModif fileTo modif
       else model
-
-
--- -- | Connect a link to a signal.
--- connectSignal
---   : Link   -- ^ The link to connect with a signal
---   -> Focus -- ^ Focus on the window with the signal
---   -> Model
---   -> Model
--- connectSignal link focus model =
---   let
---     win = selectWin focus model
---     treeId = getReprId focus win.tree model
---   in
---     case win.selMain of
---       Nothing -> model
---       Just nodeId -> addSignal link focus (treeId, nodeId) model
---
---
--- -- | Connect a link to a signal.
--- addSignal
---   : Link   -- ^ The link to connect with the signal
---   -> Focus
---   -> Addr  -- ^ The address of the signal
---   -> Model
---   -> Model
--- addSignal link focus signal model =
---   let
---     fileFrom = Lens.get (top => fileId) model
---     fileTo   = Lens.get (bot => fileId) model
---     (alter, modif) = case D.get link (Lens.get (fileLens Top => linkMap) model) of
---       _ -> Debug.crash "addSignal: implement!"
--- --       Nothing ->
--- --         Debug.crash "addSignal: should never happen!"
--- --       Just oldData ->
--- --         let
--- --           newData = switchSignal signal oldData
--- --         in
--- --           ( D.insert link newData
--- --           , LinkModif
--- --               { delLinkSet = D.singleton link newData
--- --               , addLinkSet = D.singleton link oldData }
--- --           )
---   in
---     if fileFrom == fileTo
---     then Lens.update (fileLens Top => linkMap) alter model |> saveModif fileTo modif
---     else model
 
 
 ---------------------------------------------------
@@ -1120,9 +978,6 @@ setSelection ids focus =
 -- | Return the window in focus.
 selectWin : Focus -> Model -> Window
 selectWin focus = Lens.get (windowLens focus)
---   case focus of
---     Top -> model.top
---     Bot -> model.bot
 
 
 -- | On which window the drag is activated?
@@ -1132,23 +987,6 @@ dragOn model =
   case model.top.drag of
     Just _ -> Top
     _ -> Bot
--- dragOn : Model -> Maybe Focus
--- dragOn model =
---   case (model.top.drag, model.bot.drag) of
---     (Just _, _)  -> Just Top
---     (_, Just _)  -> Just Bot
---     _ -> Nothing
-
-
--- -- | Get a partition representative for a given treeID.
--- getReprId : TreeId -> Model -> PartId
--- getReprId (TreeId treeId) model =
---   case D.get treeId model.file.partMap of
---     Nothing -> Debug.crash "Model.getReprId: no partition for the given ID"
---     Just st ->
---         case S.toList st of
---             xMin :: _ -> xMin
---             [] -> Debug.crash "Model.getReprId: empty partition"
 
 
 -- | Get a partition representative for a given treeID.
@@ -1361,31 +1199,6 @@ treePos win model =
 treeNum : Focus -> Model -> Int
 -- treeNum model = D.size model.file.treeMap
 treeNum win model = D.size (Lens.get (fileLens win) model).treeMap
-
-
--- getPosition : Focus -> Model -> Position
--- getPosition win model =
---   case (win, model.drag) of
---     (Top, Just (Top, {start, current})) ->
---       Position
---         (model.top.pos.x + current.x - start.x)
---         (model.top.pos.y + current.y - start.y)
---     (Top, _) -> model.top.pos
---     (Bot, Just (Bot, {start, current})) ->
---       Position
---         (model.bot.pos.x + current.x - start.x)
---         (model.bot.pos.y + current.y - start.y)
---     (Bot, _) -> model.bot.pos
-
-
--- getPosition : Window -> Position
--- getPosition win =
---   case win.drag of
---     Just {start, current} ->
---       Position
---         (win.pos.x + current.x - start.x)
---         (win.pos.y + current.y - start.y)
---     Nothing -> win.pos
 
 
 -- | The position of the root node of the tree in the workspaces determined by
@@ -1773,15 +1586,6 @@ setNode id focus newNode = updateNode id focus (\_ -> newNode)
 getLabel : NodeId -> Focus -> Model -> String
 getLabel id focus model =
     Lens.get nodeVal <| getNode id focus model
---     let
---         node = getNode id focus model
---     in
---         case node of
---             Node r -> r.nodeVal
---             Leaf r ->
---                 let partId = getReprId (selectWin focus model).tree model
---                 in  (getToken r.leafPos partId model).orth
-
 
 -- | NOTE: will siltently fail for terminal nodes.
 setLabel : NodeId -> Focus -> String -> Model -> Model
@@ -1913,18 +1717,6 @@ setEntityAnchor attLens id focus model =
                 else Left "The selected node is untyped (not a TIMEX, EVENT, ...)"
 
 
--- -- | Set the anchor (timex) of the given node to the selected node.
--- setAnchor
---     :  String -- ^ The name of the anchoring attribute
---     -> NodeId
---     -> Focus
---     -> Model
---     -> Either String Model
--- setAnchor =
---     let lens = nodeTyp => maybeLens => nodeTimex => timexAnchor
---     in  setTimexAnchorGen lens
-
-
 ---------------------------------------------------
 -- Relations: attribute and type modification
 --
@@ -2048,200 +1840,6 @@ setRelationAnchor lens link focus model =
                 if isTyped anchor
                 then Right <| updateRelation link (update anchorMaybe) model
                 else Left "The selected node is untyped (not a TIMEX, EVENT, ...)"
-
-
--- ---------------------------------------------------
--- -- Event modification
--- ---------------------------------------------------
---
---
--- setEventAttr : (Lens.Focus Anno.Event a) -> NodeId -> Focus -> a -> Model -> Model
--- setEventAttr attLens id focus newVal model =
---     let lens = nodeTyp => maybeLens => nodeEvent => attLens
---         update = Lens.set lens newVal
---     in  updateNode id focus update model
---
---
--- ---------------------------------------------------
--- -- Signal modification
--- ---------------------------------------------------
---
---
--- setSignalAttr : (Lens.Focus Anno.Signal a) -> NodeId -> Focus -> a -> Model -> Model
--- setSignalAttr attLens id focus newVal model =
---     let lens = nodeTyp => maybeLens => nodeSignal => attLens
---         update = Lens.set lens newVal
---     in  updateNode id focus update model
---
---
--- ---------------------------------------------------
--- -- Timex modification
--- ---------------------------------------------------
---
---
--- setTimexAttr : (Lens.Focus Anno.Timex a) -> NodeId -> Focus -> a -> Model -> Model
--- setTimexAttr attLens id focus newVal model =
---     let lens = nodeTyp => maybeLens => nodeTimex => attLens
---         update = Lens.set lens newVal
---     in  updateNode id focus update model
---
---
--- setTimexType : NodeId -> Focus -> Anno.TimexType -> Model -> Model
--- setTimexType id focus newVal model =
---     let lensTop = nodeTyp => maybeLens => nodeTimex
---         lensType = lensTop => timexType
---         lensBegin = lensTop => timexBeginPoint
---         lensEnd = lensTop => timexEndPoint
---         lensQuant = lensTop => timexQuant
---         lensFreq = lensTop => timexFreq
---         rmDurationRelated = Lens.set lensBegin Nothing >> Lens.set lensEnd Nothing
---         rmSetRelated = Lens.set lensQuant Nothing >> Lens.set lensFreq Nothing
---         update = Lens.set lensType newVal >>
---             case newVal of
---                 Anno.Duration -> rmSetRelated
---                 Anno.Set -> rmDurationRelated
---                 _ -> rmSetRelated >> rmDurationRelated
---     in  updateNode id focus update model
---
---
--- -- | Set the anchor (timex) of the given node to the selected node.
--- -- Generic version.
--- --
--- -- The process of deciding which node should be considered as the anchor
--- -- is as follows:
--- --
--- -- 1. If there is another node selected in focus, choose it
--- -- 2. Otherwise, choose the main selected node in the other window
--- -- 3. Otherwise, do nothing (should return nothing in this case
--- --    so that we can show popup, perhaps?)
--- -- setTimexAnchorGen :  NodeId -> Focus -> Model -> Either String Model
--- setTimexAnchorGen lens id focus model =
---     Debug.crash "Model.setTimexAnchorGet: implement!"
--- --     let
--- --         -- lens = nodeTyp => maybeLens => nodeTimex => timexAnchor
--- --         update newVal = Lens.set lens newVal
--- --         anchorMaybe = or anchorInFocus anchorNoFocus
--- --         or x y = case x of
--- --             Nothing -> y
--- --             _ -> x
--- --         win = selectWin focus model
--- --         anchorInFocus =
--- --             case S.toList win.selAux of
--- --                 [x] -> Just (getReprId win.tree model, x)
--- --                 _   -> Nothing
--- --         anchorNoFocus =
--- --             let
--- --                 otherFocus = case focus of
--- --                     Top -> Bot
--- --                     Bot -> Top
--- --                 otherWin = selectWin otherFocus model
--- --             in
--- --                 case otherWin.selMain of
--- --                     Just x  -> Just (getReprId otherWin.tree model, x)
--- --                     Nothing -> Nothing
--- --         isTyped addr =
--- --             case R.label (subTreeAt addr model) of
--- --                 Leaf _ -> False
--- --                 Node r -> case r.nodeTyp of
--- --                   Just _  -> True
--- --                   Nothing -> False
--- --                   -- Just (NodeTimex _) -> True
--- --                   -- _ -> False
--- --     in
--- --         case anchorMaybe of
--- --             Nothing -> Left "To perform anchoring, you have to first either: (i) select an additional node in focus, or (ii) select a node in the other window."
--- --             Just anchor ->
--- --                 if isTyped anchor
--- --                 then Right <| updateNode id focus (update anchorMaybe) model
--- --                 else Left "The selected node is untyped (not a TIMEX, EVENT, ...)"
---
---
--- -- | Set the anchor (timex) of the given node to the selected node.
--- setTimexAnchor :  NodeId -> Focus -> Model -> Either String Model
--- setTimexAnchor =
---     let lens = nodeTyp => maybeLens => nodeTimex => timexAnchor
---     in  setTimexAnchorGen lens
--- --     let
--- --         lens = nodeTyp => maybeLens => nodeTimex => timexAnchor
--- --         update newVal = Lens.set lens newVal
--- --         anchorMaybe = or anchorInFocus anchorNoFocus
--- --         or x y = case x of
--- --             Nothing -> y
--- --             _ -> x
--- --         win = selectWin focus model
--- --         anchorInFocus =
--- --             case S.toList win.selAux of
--- --                 [x] -> Just (win.tree, x)
--- --                 _   -> Nothing
--- --         anchorNoFocus =
--- --             let
--- --                 otherFocus = case focus of
--- --                     Top -> Bot
--- --                     Bot -> Top
--- --                 otherWin = selectWin otherFocus model
--- --             in
--- --                 case otherWin.selMain of
--- --                     Just x  -> Just (otherWin.tree, x)
--- --                     Nothing -> Nothing
--- --         isTyped addr =
--- --             case R.label (subTreeAt addr model) of
--- --                 Leaf _ -> False
--- --                 Node r -> case r.nodeTyp of
--- --                   Just _  -> True
--- --                   Nothing -> False
--- --                   -- Just (NodeTimex _) -> True
--- --                   -- _ -> False
--- --     in
--- --         case anchorMaybe of
--- --             Nothing -> Left "To perform anchoring, you have to first either: (i) select an additional node in focus, or (ii) select a node in the other window."
--- --             Just anchor ->
--- --                 if isTyped anchor
--- --                 then Right <| updateNode id focus (update anchorMaybe) model
--- --                 else Left "The selected node is untyped (not a TIMEX, EVENT, ...)"
---
---
--- -- | Set the anchor (timex) of the given node to the selected node.
--- setTimexBeginPoint :  NodeId -> Focus -> Model -> Either String Model
--- setTimexBeginPoint =
---     let lens = nodeTyp => maybeLens => nodeTimex => timexBeginPoint
---     in  setTimexAnchorGen lens
---
---
--- -- | Set the anchor (timex) of the given node to the selected node.
--- setTimexEndPoint :  NodeId -> Focus -> Model -> Either String Model
--- setTimexEndPoint =
---     let lens = nodeTyp => maybeLens => nodeTimex => timexEndPoint
---     in  setTimexAnchorGen lens
---
---
--- -- | Remove the anchor.
--- remTimexAnchor :  NodeId -> Focus -> Model -> Model
--- remTimexAnchor id focus model =
---     let
---         lens = nodeTyp => maybeLens => nodeTimex => timexAnchor
---         update = Lens.set lens Nothing
---     in
---         updateNode id focus update model
---
---
--- -- | Remove the anchor.
--- remTimexBeginPoint :  NodeId -> Focus -> Model -> Model
--- remTimexBeginPoint id focus model =
---     let
---         lens = nodeTyp => maybeLens => nodeTimex => timexBeginPoint
---         update = Lens.set lens Nothing
---     in
---         updateNode id focus update model
---
---
--- -- | Remove the anchor.
--- remTimexEndPoint :  NodeId -> Focus -> Model -> Model
--- remTimexEndPoint id focus model =
---     let
---         lens = nodeTyp => maybeLens => nodeTimex => timexEndPoint
---         update = Lens.set lens Nothing
---     in
---         updateNode id focus update model
 
 
 ---------------------------------------------------
@@ -2441,29 +2039,6 @@ reID =
 ---------------------------------------------------
 
 
--- -- | Change the type of the main selected nodes in a given window.
--- changeTypeSel : Focus -> Model -> Model
--- changeTypeSel = changeWith changeType
---
---
--- -- | Change the type of a given node.
--- changeType : NodeId -> R.Tree Node -> R.Tree Node
--- changeType =
---   let
---     shiftTyp x = case x of
---       Nothing -> Just <| NodeEvent Anno.eventDefault
---       Just (NodeEvent _) -> Just <| NodeSignal Anno.signalDefault
---       Just (NodeSignal _) -> Just <| NodeTimex Anno.timexDefault
---       Just (NodeTimex _) -> Nothing
---   in
---     changeTypeWith shiftTyp
-
-
--- | Change the type of a given node.
--- changeTypeWith
---     : (NodeId -> R.Tree Node -> R.Tree Node)
---     -> NodeId
---     ->
 changeTypeWith shiftTyp id =
   let
     update x =
@@ -2589,18 +2164,6 @@ syncTreeWithSent firstTokId sent tree =
     let onSecond f (x, y) = (x, f y)
         simplify = onSecond <| Maybe.map Tuple.first
     in  L.map simplify <| syncTreeWithSentPos firstTokId sent tree
---     let
---         go pos toks leaves =
---             case (toks, leaves) of
---                 (tok :: toksRest, leaf :: leavesRest) ->
---                     if leaf.leafPos == pos
---                     then (tok, Just leaf.nodeVal) :: go (pos+1) toksRest leavesRest
---                     else (tok, Nothing) :: go (pos+1) toksRest leaves
---                 (tok :: toksRest, []) ->
---                     (tok, Nothing) :: go (pos+1) toksRest []
---                 ([], _) -> []
---     in
---         go 0 sent (getWords tree)
 
 
 -- | Synchronize the tree with the corresponding sentence.
@@ -2671,16 +2234,6 @@ syncForestWithSent sent forest =
     let onSecond f (x, y) = (x, f y)
         simplify = onSecond <| Maybe.map Tuple.first
     in  L.map (L.map simplify) <| syncForestWithSentPos sent forest
---     let
---         tail xs =
---             case L.tail xs of
---                 Nothing -> []
---                 Just ys -> ys
---         minList = tail <| L.map minimalPosition forest
---         sentList = segmentSentence minList sent
---         sync (subSent, subTree) = syncTreeWithSent subSent subTree
---     in
---         L.map sync (L.map2 (,) sentList forest)
 
 
 -- | Syncronize the forest with the corresponding sentence.
@@ -2805,7 +2358,6 @@ joinIndeed win tid1 tid2 model =
             let root = Node {nodeId=0, nodeVal="ROOT", nodeTyp=Nothing, nodeComment=""}
                 shift = L.length <| getSent win newRepr model
                 t2 = addPOS shift t2Init
-            -- in  reID <| rePOS <| R.Node root (R.subTrees t1 ++ R.subTrees t2)
             in  reID <| R.Node root (R.subTrees t1 ++ R.subTrees t2)
     in
         setPart win newRepr (Just newPart) <| setRepr win oldRepr newRepr <|
@@ -2842,14 +2394,6 @@ setPart win treeId newPartMay model =
 setPart_ : Focus -> PartId -> Maybe (S.Set TreeIdBare) -> Model -> Model
 setPart_ win treeId newPartMay model =
     setPartAlt_ (getFileId win model) treeId newPartMay model
---     let
---         newPartMap partMap =
---             case newPartMay of
---                 Nothing -> D.remove treeId partMap
---                 Just newPart -> D.insert treeId newPart partMap
---         newModel = Lens.update (fileLens win => partMap) newPartMap model
---     in
---         newModel
 
 
 -- | Set partition for the given tree ID.
@@ -2873,7 +2417,6 @@ getPartAlt fileId treeId =
 getPart : Focus -> PartId -> Model -> Maybe (S.Set TreeIdBare)
 getPart win treeId model =
     getPartAlt (getFileId win model) treeId model
-    -- D.get treeId << Lens.get (fileLens win => partMap)
 
 
 -- | Set representative for the given tree ID.
@@ -3011,13 +2554,7 @@ swapSel left model =
       |> Maybe.andThen (\nodeId -> swap left nodeId inTree
       |> Maybe.map (\newTree -> updateTree focus treeId (\_ -> newTree) model))
       |> Maybe.withDefault model
---     case nodeMay of
---       Just nodeId ->
---         case swap left nodeId inTree of
---           Just newTree -> updateTree win.tree (\_ -> newTree) model
---           Nothing -> model
---       _ -> model
-
+      
 
 -- | Shift the tree attached at the given onde right or left.
 swap
@@ -3161,21 +2698,6 @@ splitToken tokID splitPlace toks =
 ---------------------------------------------------
 -- Restore token
 ---------------------------------------------------
-
-
--- -- | Restore the given token (provided that it can even be restored).
--- restoreToken
---     : PartId
---     -> Int     -- ^ Token ID of the token to restore
---     -> Model
---     -> Model
--- restoreToken partID tokID model =
---     if not <| M.isDummyTree <| getTree treeId model
---     then doRestoreToken treeId tokID model
---     else
---         let
---             tok = getToken 0 partID model
---         in
 
 
 -- | Restore the given token (provided that it can even be restored).
@@ -3327,22 +2849,6 @@ isDummyTree tree =
 
 
 ---------------------------------------------------
--- Goto
----------------------------------------------------
-
-
--- -- | Go to a given address in the focused window.
--- goto : C.Addr -> M.Model -> M.Model
--- goto addr model =
---     let
---         focus = model.focus
---         win = selectWin focus model
---         nodeMay = win.selMain
---         inTree = getTree win.tree model
---     in
-
-
----------------------------------------------------
 -- Utils
 ---------------------------------------------------
 
@@ -3350,19 +2856,6 @@ isDummyTree tree =
 -- | Flip the first two arguments.
 flip : (a -> b -> c) -> b -> a -> c
 flip f x y = f y x
-
-
--- -- | Update the set of the selected nodes depending on the window in which the
--- -- tree was modified.
--- updateSelect : Focus -> Model -> Model
--- updateSelect foc model =
---   let
---     alter win =
---       {win | selMain = Nothing, selAux = S.empty}
---   in
---     model |> case foc of
---       Top -> Lens.update top alter
---       Bot -> Lens.update bot alter
 
 
 ---------------------------------------------------
@@ -3392,35 +2885,6 @@ file : Lens.Focus { record | file : a } a
 file = Lens.create
   .file
   (\fn model -> {model | file = fn model.file})
-
-
--- mainFile : Lens.Focus { record | mainFile : a } a
--- mainFile = Lens.create
---   .mainFile
---   (\fn model -> {model | mainFile = fn model.mainFile})
---
---
--- cmpFile : Lens.Focus { record | cmpFile : Maybe a, mainFile : a } a
--- cmpFile =
---     let
---         get model =
---             case model.cmpFile of
---                 Nothing -> model.mainFile
---                 Just fi -> fi
---         update fn model =
---             case model.cmpFile of
---                 Nothing -> {model | mainFile = fn model.mainFile}
---                 Just fi -> {model | cmpFile = Just (fn fi)}
---     in
---         Lens.create get update
---
---
--- -- | Generic file lens whose behavior depends on the window in focus.
--- fileLens : Focus -> Lens.Focus { record | cmpFile : Maybe a, mainFile : a } a
--- fileLens win =
---     case win of
---         Top -> mainFile
---         Bot -> cmpFile
 
 
 fileInfoLensAlt : FileId -> Lens.Focus Model FileInfo
@@ -3475,13 +2939,7 @@ fileLensAlt fileId =
 getFileId : Focus -> Model -> FileId
 getFileId win =
     Lens.get (workspaceLens win => fileId)
---     case win of
---         Top -> model.mainFileId
---         Bot ->
---             case model.cmpFileId of
---                 Nothing -> model.mainFileId
---                 Just id -> id
-
+    
 
 treeMap : Lens.Focus { record | treeMap : a } a
 treeMap = Lens.create
@@ -3544,14 +3002,6 @@ windowLens win =
         Lens.create get update
 
 
--- -- | Focus on the given workspace.
--- workspaceLens : Focus -> Lens.Focus Model Workspace
--- workspaceLens focus =
---   case focus of
---     Top -> top
---     Bot -> bot
-
-
 workspaceLens : Focus -> Lens.Focus { record | bot : a, top : a } a
 workspaceLens focus =
   case focus of
@@ -3569,18 +3019,6 @@ dim : Lens.Focus { record | dim : a } a
 dim = Lens.create
   .dim
   (\fn model -> {model | dim = fn model.dim})
-
-
--- links : Lens.Focus { record | links : a } a
--- links = Lens.create
---   .links
---   (\fn model -> {model | links = fn model.links})
-
-
--- select : Lens.Focus { record | select : a } a
--- select = Lens.create
---   .select
---   (\fn model -> {model | select = fn model.select})
 
 
 pos : Lens.Focus { record | pos : a } a
@@ -3692,288 +3130,6 @@ nodeComment =
     Lens.create get update
 
 
--- nodeEvent : Lens.Focus NodeAnnoTyp Anno.Event
--- nodeEvent =
---   let
---     getErr = "nodeEvent.lens: cannot get"
---     get typ = case typ of
---       NodeEvent event -> event
---       _ -> Debug.crash getErr
---     update f typ = case typ of
---       NodeEvent event -> NodeEvent (f event)
---       _ -> typ
---   in
---     Lens.create get update
---
---
--- nodeSignal : Lens.Focus NodeAnnoTyp Anno.Signal
--- nodeSignal =
---   let
---     getErr = "nodeSignal.lens: cannot get"
---     get typ = case typ of
---       NodeSignal event -> event
---       _ -> Debug.crash getErr
---     update f typ = case typ of
---       NodeSignal event -> NodeSignal (f event)
---       _ -> typ
---   in
---     Lens.create get update
---
---
--- nodeTimex : Lens.Focus NodeAnnoTyp Anno.Timex
--- nodeTimex =
---   let
---     getErr = "nodeTimex.lens: cannot get"
---     get typ = case typ of
---       NodeTimex timex -> timex
---       _ -> Debug.crash getErr
---     update f typ = case typ of
---       NodeTimex timex -> NodeTimex (f timex)
---       _ -> typ
---   in
---     Lens.create get update
-
-
--- ----------------------------
--- -- Event-related lenses
--- ----------------------------
---
---
--- eventClass : Lens.Focus Anno.Event Anno.EventClass
--- eventClass =
---   let
---     get (Anno.Event r) = r.evClass
---     update f (Anno.Event r) = Anno.Event {r | evClass = f r.evClass}
---   in
---     Lens.create get update
---
---
--- eventType : Lens.Focus Anno.Event Anno.EventType
--- eventType =
---   let
---     get (Anno.Event r) = r.evType
---     update f (Anno.Event r) = Anno.Event {r | evType = f r.evType}
---   in
---     Lens.create get update
---
---
--- eventInquisit : Lens.Focus Anno.Event Anno.EventInquisit
--- eventInquisit =
---   let
---     get (Anno.Event r) = r.evInquisit
---     update f (Anno.Event r) = Anno.Event {r | evInquisit = f r.evInquisit}
---   in
---     Lens.create get update
---
---
--- eventTime : Lens.Focus Anno.Event (Maybe Anno.EventTime)
--- eventTime =
---   let
---     get (Anno.Event r) = r.evTime
---     update f (Anno.Event r) = Anno.Event {r | evTime = f r.evTime}
---   in
---     Lens.create get update
---
---
--- eventAspect : Lens.Focus Anno.Event (Maybe Anno.EventAspect)
--- eventAspect =
---   let
---     get (Anno.Event r) = r.evAspect
---     update f (Anno.Event r) = Anno.Event {r | evAspect = f r.evAspect}
---   in
---     Lens.create get update
---
---
--- eventPolarity : Lens.Focus Anno.Event Anno.EventPolarity
--- eventPolarity =
---   let
---     get (Anno.Event r) = r.evPolarity
---     update f (Anno.Event r) = Anno.Event {r | evPolarity = f r.evPolarity}
---   in
---     Lens.create get update
---
---
--- eventMood : Lens.Focus Anno.Event (Maybe Anno.EventMood)
--- eventMood =
---   let
---     get (Anno.Event r) = r.evMood
---     update f (Anno.Event r) = Anno.Event {r | evMood = f r.evMood}
---   in
---     Lens.create get update
---
---
--- eventModality : Lens.Focus Anno.Event (Maybe Anno.EventModality)
--- eventModality =
---   let
---     get (Anno.Event r) = r.evModality
---     update f (Anno.Event r) = Anno.Event {r | evModality = f r.evModality}
---   in
---     Lens.create get update
---
---
--- eventCardinality : Lens.Focus Anno.Event String
--- eventCardinality =
---   let
---     get (Anno.Event r) = r.evCardinality
---     update f (Anno.Event r) = Anno.Event {r | evCardinality = f r.evCardinality}
---   in
---     Lens.create get update
---
---
--- eventMod : Lens.Focus Anno.Event (Maybe Anno.EventMod)
--- eventMod =
---   let
---     get (Anno.Event r) = r.evMod
---     update f (Anno.Event r) = Anno.Event {r | evMod = f r.evMod}
---   in
---     Lens.create get update
---
---
--- eventPred : Lens.Focus Anno.Event String
--- eventPred =
---   let
---     get (Anno.Event r) = r.evPred
---     update f (Anno.Event r) = Anno.Event {r | evPred = f r.evPred}
---   in
---     Lens.create get update
-
-
-----------------------------
--- Signal-related lenses
-----------------------------
-
-
--- signalType : Lens.Focus Anno.Signal Anno.SignalType
--- signalType =
---   let
---     get (Anno.Signal r) = r.siType
---     update f (Anno.Signal r) = Anno.Signal {r | siType = f r.siType}
---   in
---     Lens.create get update
-
-
--- ----------------------------
--- -- Timex-related lenses
--- ----------------------------
---
---
--- timexCalendar : Lens.Focus Anno.Timex Anno.TimexCalendar
--- timexCalendar =
---   let
---     get (Anno.Timex r) = r.tiCalendar
---     update f (Anno.Timex r) = Anno.Timex {r | tiCalendar = f r.tiCalendar}
---   in
---     Lens.create get update
---
---
--- timexType : Lens.Focus Anno.Timex Anno.TimexType
--- timexType =
---   let
---     get (Anno.Timex r) = r.tiType
---     update f (Anno.Timex r) = Anno.Timex {r | tiType = f r.tiType}
---   in
---     Lens.create get update
---
---
--- timexFunctionInDocument : Lens.Focus Anno.Timex (Maybe Anno.TimexFunctionInDocument)
--- timexFunctionInDocument =
---   let
---     get (Anno.Timex r) = r.tiFunctionInDocument
---     update f (Anno.Timex r) = Anno.Timex {r | tiFunctionInDocument = f r.tiFunctionInDocument}
---   in
---     Lens.create get update
---
---
--- timexPred : Lens.Focus Anno.Timex String
--- timexPred =
---   let
---     get (Anno.Timex r) = r.tiPred
---     update f (Anno.Timex r) = Anno.Timex {r | tiPred = f r.tiPred}
---   in
---     Lens.create get update
---
---
--- timexTemporalFunction : Lens.Focus Anno.Timex (Maybe Anno.TimexTemporalFunction)
--- timexTemporalFunction =
---   let
---     get (Anno.Timex r) = r.tiTemporalFunction
---     update f (Anno.Timex r) = Anno.Timex {r | tiTemporalFunction = f r.tiTemporalFunction}
---   in
---     Lens.create get update
---
---
--- timexLingValue : Lens.Focus Anno.Timex String
--- timexLingValue =
---   let
---     get (Anno.Timex r) = r.tiLingValue
---     update f (Anno.Timex r) = Anno.Timex {r | tiLingValue = f r.tiLingValue}
---   in
---     Lens.create get update
---
---
--- timexValue : Lens.Focus Anno.Timex String
--- timexValue =
---   let
---     get (Anno.Timex r) = r.tiValue
---     update f (Anno.Timex r) = Anno.Timex {r | tiValue = f r.tiValue}
---   in
---     Lens.create get update
---
---
--- timexMod : Lens.Focus Anno.Timex (Maybe Anno.TimexMod)
--- timexMod =
---   let
---     get (Anno.Timex r) = r.tiMod
---     update f (Anno.Timex r) = Anno.Timex {r | tiMod = f r.tiMod}
---   in
---     Lens.create get update
---
---
--- timexAnchor : Lens.Focus Anno.Timex (Maybe Addr)
--- timexAnchor =
---   let
---     get (Anno.Timex r) = r.tiAnchor
---     update f (Anno.Timex r) = Anno.Timex {r | tiAnchor = f r.tiAnchor}
---   in
---     Lens.create get update
---
---
--- timexBeginPoint : Lens.Focus Anno.Timex (Maybe Addr)
--- timexBeginPoint =
---   let
---     get (Anno.Timex r) = r.tiBeginPoint
---     update f (Anno.Timex r) = Anno.Timex {r | tiBeginPoint = f r.tiBeginPoint}
---   in
---     Lens.create get update
---
---
--- timexEndPoint : Lens.Focus Anno.Timex (Maybe Addr)
--- timexEndPoint =
---   let
---     get (Anno.Timex r) = r.tiEndPoint
---     update f (Anno.Timex r) = Anno.Timex {r | tiEndPoint = f r.tiEndPoint}
---   in
---     Lens.create get update
---
---
--- timexQuant : Lens.Focus Anno.Timex (Maybe String)
--- timexQuant =
---   let
---     get (Anno.Timex r) = r.tiQuant
---     update f (Anno.Timex r) = Anno.Timex {r | tiQuant = f r.tiQuant}
---   in
---     Lens.create get update
---
---
--- timexFreq : Lens.Focus Anno.Timex (Maybe String)
--- timexFreq =
---   let
---     get (Anno.Timex r) = r.tiFreq
---     update f (Anno.Timex r) = Anno.Timex {r | tiFreq = f r.tiFreq}
---   in
---     Lens.create get update
-
-
 ----------------------------
 -- Utility lenses
 ----------------------------
@@ -3991,26 +3147,6 @@ maybeLens =
       Just x -> Just (f x)
   in
     Lens.create get update
-
-
----------------------------------------------------
--- Pseudo-lenses
----------------------------------------------------
-
-
--- -- | Change the treeMap of the model.
--- setTrees : TreeMap -> Model -> Model
--- setTrees treeDict model = Debug.crash "setTrees: not implemented"
--- --   let
--- --     treeId = case D.toList treeDict of
--- --       (id, tree) :: _ -> id
--- --       _ -> Debug.crash "setTrees: empty tree dictionary"
--- --   in
--- --     {model | trees = treeDict}
--- --       |> Lens.set (top => tree) treeId
--- --       |> Lens.set (bot => tree) treeId
--- -- --       |> updateSelect Top
--- -- --       |> updateSelect Bot
 
 
 ---------------------------------------------------
@@ -4040,8 +3176,6 @@ turnDecoder =
       (Decode.field "trees" treesDecoder)
 
 
--- linkMapDecoder : Decode.Decoder (D.Dict Link LinkData)
--- linkMapDecoder = Decode.map D.fromList <| Decode.list linkDecoder
 linkMapDecoder : Decode.Decoder (D.Dict Link Anno.Entity)
 linkMapDecoder =
   let
@@ -4059,18 +3193,6 @@ linkDecoder =
     (Decode.field "from" Anno.addrDecoder)
     (Decode.field "to" Anno.addrDecoder)
 
-
--- linkDataDecoder : Decode.Decoder LinkData
--- linkDataDecoder =
---   Decode.map (\x -> {signalAddr=x})
---     (Decode.field "signalAddr" (Decode.nullable Anno.addrDecoder))
-
-
--- treeMapDecoder : Decode.Decoder TreeMap
--- treeMapDecoder = Decode.map (mapKeys toInt) <| Decode.dict <|
---   Decode.map2 (\sent tree -> (sent, tree))
---     (Decode.index 0 Decode.string)
---     (Decode.index 1 treeDecoder)
 
 treeMapDecoder : Decode.Decoder TreeMap
 treeMapDecoder = Decode.map (mapKeys <| toInt) <| Decode.dict treeDecoder
@@ -4092,7 +3214,6 @@ tokenDecoder =
 
 
 partMapDecoder : Decode.Decoder (D.Dict TreeIdBare (S.Set TreeIdBare))
--- partMapDecoder = Decode.map (mapKeys toInt) <| Decode.dict <| Decode.set Decode.int
 partMapDecoder =
     Decode.map (mapKeys toInt)
         <| Decode.dict
@@ -4135,26 +3256,6 @@ leafDecoder =
 
 nodeTypDecoder : Decode.Decoder NodeAnnoTyp
 nodeTypDecoder = Anno.entityDecoder
--- nodeTypDecoder = Decode.oneOf [nodeEventDecoder, nodeSignalDecoder, nodeTimexDecoder]
-
-
--- nodeEventDecoder : Decode.Decoder NodeAnnoTyp
--- nodeEventDecoder =
---   Decode.map (\ev -> NodeEvent ev)
---     (Decode.field "contents" Anno.eventDecoder)
---
---
--- nodeSignalDecoder : Decode.Decoder NodeAnnoTyp
--- nodeSignalDecoder =
---   Decode.map (\si -> NodeSignal si)
---     (Decode.field "contents" Anno.signalDecoder)
---
---
--- nodeTimexDecoder : Decode.Decoder NodeAnnoTyp
--- nodeTimexDecoder =
---   Decode.map (\ti -> NodeTimex ti)
---     (Decode.field "contents" Anno.timexDecoder)
-
 
 ---------------------------------------------------
 -- JSON Encoding
@@ -4213,24 +3314,6 @@ encodeLink (from, to) =
     , ("to", Anno.encodeAddr to)
     ]
 
-
--- encodeLinkData : LinkData -> Encode.Value
--- encodeLinkData x = Encode.object
---   [ ("tag", Encode.string "LinkData")
---   , ("signalAddr", Util.encodeMaybe Anno.encodeAddr x.signalAddr)
---   ]
-
-
--- encodeTreeMap : TreeMap -> Encode.Value
--- encodeTreeMap =
---   let
---     encodeSentTree (sent, tree) = Encode.list
---       [ encodeSent sent
---       , encodeTree tree ]
---     encodePair (treeId, sentTree) =
---       (toString treeId, encodeSentTree sentTree)
---   in
---     Encode.object << L.map encodePair << D.toList
 
 encodeTreeMap : TreeMap -> Encode.Value
 encodeTreeMap =
@@ -4305,19 +3388,6 @@ encodeNode node = case node of
     ]
 
 
--- encodeNodeAnnoTyp : NodeAnnoTyp -> Encode.Value
--- encodeNodeAnnoTyp nodeTyp = case nodeTyp of
---   NodeEvent ev -> Encode.object
---     [ ("tag", Encode.string "NodeEvent")
---     , ("contents", Anno.encodeEvent ev) ]
---   NodeSignal si -> Encode.object
---     [ ("tag", Encode.string "NodeSignal")
---     , ("contents", Anno.encodeSignal si) ]
---   NodeTimex ti -> Encode.object
---     [ ("tag", Encode.string "NodeTimex")
---     , ("contents", Anno.encodeTimex ti) ]
-
-
 ---------------------------------------------------
 -- Utils
 ---------------------------------------------------
@@ -4341,14 +3411,6 @@ mapKeys f d =
 getWords : R.Tree Node -> List LeafNode
 getWords tree =
     L.map Tuple.first <| getWordsPos tree
---     let
---         leaf node = case node of
---                         Leaf x -> Just x
---                         Node _ -> Nothing
---     in
---         List.sortBy (\x -> x.leafPos)
---             <| List.filterMap leaf
---             <| R.flatten tree
 
 
 -- | Retrieve the words (leaves) from a given tree and sort them by their
@@ -4377,18 +3439,6 @@ subTreeAt (treeId, theNodeId) win model =
         case R.getSubTree pred tree of
             Nothing -> Debug.crash "View.subTreeAt: no node with the given ID"
             Just t  -> t
-
-
--- -- | Re-position the leaves of the tree.
--- rePOS : R.Tree Node -> R.Tree Node
--- rePOS =
---     let
---         update pos x =
---             case x of
---                 Node r -> (pos, Node r)
---                 Leaf r -> (pos+1, Leaf {r | leafPos=pos})
---     in
---         Tuple.second << R.mapAccum update 0
 
 
 -- | Add the given shift to all positions in the leaves.
