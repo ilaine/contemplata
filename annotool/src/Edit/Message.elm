@@ -33,12 +33,6 @@ import Server.Core as Server
 import Server.Core exposing (ParseReq(..))
 import Util
 
-
--- update : Msg -> M.Model -> ( M.Model, Cmd Msg )
--- update msg model =
---   ( updateHelp msg model, Cmd.none )
-
-
 update : Msg -> M.Model -> ( M.Model, Cmd Msg )
 update msg model =
 
@@ -92,7 +86,6 @@ update msg model =
           (M.dim => propLens)
           (\x -> trim <| x + change)
           model
-        -- {model | winProp = newProp}
 
     Select win i -> idle <|
       if model.ctrl
@@ -179,23 +172,13 @@ update msg model =
 
     Add -> idle <| M.addSel model.focus model
 
-    -- ChangeType -> idle <| M.changeTypeSel model.focus model
-
     MkEntity name -> idle <|
       let en = AnnoCfg.entityConfig name model.annoConfig
       in  M.mkEntitySel en model.focus model
---       case AnnoCfg.entityConfig name model.annoConfig of
---           Nothing -> model
---           Just en -> M.mkEntitySel en model.focus model
-
---     MkSignal -> idle <| M.mkSignalSel model.focus model
---     MkEvent -> idle <| M.mkEventSel model.focus model
---     MkTimex -> idle <| M.mkTimexSel model.focus model
 
     CtrlDown -> idle <| {model | ctrl=True}
     CtrlUp -> idle <| {model | ctrl=False}
 
-    -- Connect -> idle <|
     MkRelation name ->  idle <|
       let en = AnnoCfg.relationConfig name model.annoConfig
       in  M.mkRelationSel en model
@@ -204,7 +187,6 @@ update msg model =
 
     Swap left -> idle <| M.swapSel left model
 
-    -- Files -> idle <| model -- ^ Handled upstream
     Files -> Debug.crash "Edit.Message.Files: should be handled upstream!"
 
     Join ->
@@ -220,21 +202,6 @@ update msg model =
             else model
       in
         idle newModel
-        -- parseSent Server.Stanford newModel
-
---     Break ->
---       let
---         partId = M.getReprId (M.selectWin model.focus model).tree model
---         txtFor id = case D.get id model.file.sentMap of
---                   Nothing -> ""
---                   Just x -> x
---         txts = L.map txtFor
---                <| S.toList
---                <| M.getPart partId model
---         req = Server.Break model.fileId partId txts
---         send = Server.sendWS model.config req
---       in
---         (model, send)
 
     ParseRaw prep ->
       let
@@ -291,7 +258,6 @@ update msg model =
         M.setTreeCheck fileId treeId newTree model
           |> Lens.update wlen updateSel
 
-    -- Popup x -> idle <| {model | popup = Just x}
     Popup x targetMaybe ->
         let
             target = case targetMaybe of
@@ -336,23 +302,6 @@ update msg model =
         let task = Task.succeed (SideMenuContext model.focus)
         in  (model, Task.perform identity task)
 
---     SideMenuContext focus ->
---       let
---         target = Cfg.sideDivName <| case focus of
---           C.Top -> True
---           C.Bot -> False
---       in
---         ( Lens.set
---             (M.winLens focus => M.side)
---             M.SideContext
---             model
---         , Task.attempt
---             (\_ -> dummy)
---             -- (Dom.focus target)
---             -- (Dom.Scroll.toTop target)
---             (Dom.Scroll.toY target 10000)
---         )
-
     SideMenuLog focus -> sideMenu focus M.SideLog model
 
     SetNodeAttr nodeId focus attr -> idle <|
@@ -385,62 +334,6 @@ update msg model =
               let popup = Popup.Info err
               in  (model, firePopup popup Nothing)
           Right model -> idle model
-
---     SetEventAttr nodeId focus attr -> idle <|
---       case attr of
---         Anno.ClassAttr x -> M.setEventAttr M.eventClass nodeId focus x model
---         Anno.TypeAttr x -> M.setEventAttr M.eventType nodeId focus x model
---         Anno.InquisitAttr x -> M.setEventAttr M.eventInquisit nodeId focus x model
---         Anno.TimeAttr x -> M.setEventAttr M.eventTime nodeId focus x model
---         Anno.AspectAttr x -> M.setEventAttr M.eventAspect nodeId focus x model
---         Anno.PolarityAttr x -> M.setEventAttr M.eventPolarity nodeId focus x model
---         Anno.MoodAttr x -> M.setEventAttr M.eventMood nodeId focus x model
---         Anno.ModalityAttr x -> M.setEventAttr M.eventModality nodeId focus x model
---         Anno.CardinalityAttr x -> M.setEventAttr M.eventCardinality nodeId focus x model
---         Anno.ModAttr x -> M.setEventAttr M.eventMod nodeId focus x model
---         Anno.PredAttr x -> M.setEventAttr M.eventPred nodeId focus x model
---         -- Anno.CommentAttr x -> M.setEventAttr M.eventComment nodeId focus x model
---         -- _ -> Debug.crash "SetEventAttr: not implemented yet!"
---
---     SetSignalAttr nodeId focus attr -> idle <|
---       case attr of
---         Anno.SiTypeAttr x -> M.setSignalAttr M.signalType nodeId focus x model
---
---     SetTimexAttr nodeId focus attr ->
---       let
---         setAnchor set =
---             case set nodeId focus model of
---                 Left err ->
---                     let popup = Popup.Info err
---                     in  (model, firePopup popup Nothing)
---                 Right model -> idle model
---       in
---         case attr of
---           Anno.TiAnchorAttr True -> setAnchor M.setTimexAnchor
---           Anno.TiBeginPointAttr True -> setAnchor M.setTimexBeginPoint
---           Anno.TiEndPointAttr True -> setAnchor M.setTimexEndPoint
---           _ -> idle <| case attr of
---             Anno.TiCalendarAttr x -> M.setTimexAttr M.timexCalendar nodeId focus x model
---             Anno.TiTypeAttr x -> M.setTimexType nodeId focus x model
---             Anno.TiFunctionInDocumentAttr x ->
---                 M.setTimexAttr M.timexFunctionInDocument nodeId focus x model
---             Anno.TiPredAttr x -> M.setTimexAttr M.timexPred nodeId focus x model
---             Anno.TiTemporalFunctionAttr x ->
---                 M.setTimexAttr M.timexTemporalFunction nodeId focus x model
---             Anno.TiLingValueAttr x -> M.setTimexAttr M.timexLingValue nodeId focus x model
---             Anno.TiValueAttr x -> M.setTimexAttr M.timexValue nodeId focus x model
---             Anno.TiModAttr x -> M.setTimexAttr M.timexMod nodeId focus x model
---             Anno.TiAnchorAttr True ->
---                 Debug.crash "Message: impossible happened (TiAnchorAttr True)!"
---             Anno.TiAnchorAttr False -> M.remTimexAnchor nodeId focus model
---             Anno.TiBeginPointAttr True ->
---                 Debug.crash "Message: impossible happened (TiBeginPointAttr True)!"
---             Anno.TiBeginPointAttr False -> M.remTimexBeginPoint nodeId focus model
---             Anno.TiEndPointAttr True ->
---                 Debug.crash "Message: impossible happened (TiEndPointAttr True)!"
---             Anno.TiEndPointAttr False -> M.remTimexEndPoint nodeId focus model
---             Anno.TiQuantAttr x -> M.setTimexAttr M.timexQuant nodeId focus x model
---             Anno.TiFreqAttr x -> M.setTimexAttr M.timexFreq nodeId focus x model
 
     SplitBegin ->
         let
@@ -548,8 +441,6 @@ update msg model =
             partId = M.getReprId focus (M.selectWin focus model).tree model
         in  M.dumify focus partId model
 
-    -- Goto addr -> idle <| M.goto addr model
-
     Many msgs ->
       let f msg (mdl0, cmds) =
         let (mdl, cmd) = update msg mdl0
@@ -576,16 +467,7 @@ firePopup popupRaw targetMaybe =
         popCmd = Task.perform identity (Task.succeed popup)
     in
         popCmd
---     let
---         popup = Popup popupRaw
---         popCmd = Task.perform identity (Task.succeed popup)
---         target = case targetMaybe of
---             Just x  -> x
---             Nothing -> Cfg.popupDivTemp
---         focCmd = Task.attempt (\_ -> dummy) (Dom.focus target)
---     in
---         Cmd.batch [popCmd, focCmd]
-
+        
 
 ----------------------------------------------
 -- Command
@@ -608,12 +490,10 @@ toMsg cfg cmd0 =
       Just x  -> Just x
 
 
-
 -- | Return all the commands beginning with the given prefix.
 cmdsWithPrefix : AnnoCfg.Config -> String -> List String
 cmdsWithPrefix cfg =
   List.map Tuple.first << cmdsWithPrefix_ cfg
-
 
 
 -- | Return all the commands beginning with the given prefix.
@@ -810,17 +690,6 @@ compareOne model =
 ----------------------------------------------
 
 
--- parseSent : Server.ParserTyp -> M.Model -> (M.Model, Cmd Msg)
--- parseSent parTyp model =
---     let
---         treeId = M.getReprId (M.selectWin model.focus model).tree model
---         words = getWords (M.getSent treeId model) (M.getTree treeId model)
---         req = Server.ParseSent model.fileId treeId parTyp words
---         send = Server.sendWS model.config req
---     in
---         (model, send)
-
-
 parseSent : Server.ParserTyp -> M.Model -> (M.Model, Cmd Msg)
 parseSent parTyp model =
     let
@@ -842,21 +711,12 @@ parseSent parTyp model =
                              )
                         )
                     )
-        -- req = Server.ParseSent model.fileId treeId parTyp words
         fileId = M.getFileId focus model
         req = Server.ParseSent fileId treeId parTyp words
         send = Server.sendWS model.config req
     in
         (model, send)
-
-
--- -- | Retrieve the span of a given node in a given tree.
--- getSpan1 : C.NodeId -> R.Tree M.Node -> Maybe (Int, Int)
--- getSpan1 nodeId tree =
---     case getSpan (S.singleton nodeId) tree of
---         x :: _ -> Just x
---         [] -> Nothing
-
+        
 
 -- | Retrieve the span of a given node in a given tree.
 getSpan : S.Set C.NodeId -> R.Tree M.Node -> List (String, Int, Int)
