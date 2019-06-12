@@ -249,7 +249,6 @@ update msg model =
       let
         focus = model.focus
         fileId = M.getFileId focus model
-        -- wlen = M.winLens focus
         wlen = M.windowLens focus
         treeId = M.getReprId focus (Lens.get wlen model).tree model
         (newTree, newSel) = Rule.apply Rule.theRule (M.getTree focus treeId model)
@@ -257,6 +256,18 @@ update msg model =
       in
         M.setTreeCheck fileId treeId newTree model
           |> Lens.update wlen updateSel
+
+    ApplyEvent -> idle <|
+      let
+        focus = model.focus
+        wlen = M.windowLens focus
+        treeId = M.getReprId focus (Lens.get wlen model).tree model
+        tree = M.getTree focus treeId model
+        getId = Lens.get M.nodeId
+        idList = List.map getId <| R.flatten tree
+        -- ^ get the list of IDs of all nodes in the selected tree
+      in
+        checkEvent idList focus model
 
     Popup x targetMaybe ->
         let
@@ -467,7 +478,37 @@ firePopup popupRaw targetMaybe =
         popCmd = Task.perform identity (Task.succeed popup)
     in
         popCmd
-        
+
+
+----------------------------------------------
+-- Annotate Event
+----------------------------------------------
+
+-- | Annotates all SENTs, Srels and VPinfs automatically
+-- 1. Get a list of all the nodes' IDs
+-- 2. Annotate Event if the label of those nodes are SENT, Srel or VPinf
+checkEvent : List C.NodeId -> C.Focus -> M.Model -> M.Model
+checkEvent idList focus model =
+    case idList of
+      [] -> model
+      (x::xs) ->
+        let
+          en = AnnoCfg.entityConfig "Event" model.annoConfig
+          newModel = M.selectNode focus x model
+          win = M.selectWin focus newModel
+        in
+          case win.selMain of
+            Nothing -> model
+            Just id ->
+              let
+                label = M.getLabel id focus newModel
+                eventMaterial = ["SENT","Srel","VPinf"]
+              in
+                if List.member label eventMaterial then
+                  checkEvent xs focus <| M.mkEntitySel en model.focus newModel
+                else
+                  checkEvent xs focus model
+
 
 ----------------------------------------------
 -- Command
