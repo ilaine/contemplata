@@ -102,6 +102,14 @@ in
     , _2 = simple {name = "ApplyRules"}
     }
   , { _1 =
+      { keyCmd = [{char="v"}] : Optional ./KeyboardShortcut.typ
+      , lineCmd = ["annotevent"] : Optional Text
+      , menuCmd = [] : Optional Text
+      , withCtrl = [True] : Optional Bool
+      , help = [] : Optional Text }
+    , _2 = simple {name = "ApplyEvent"}
+    }
+  , { _1 =
       { keyCmd = [] : Optional ./KeyboardShortcut.typ
       , lineCmd = ["splitsent"] : Optional Text
       , menuCmd = ["Split sentence"] : Optional Text
