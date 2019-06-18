@@ -260,14 +260,11 @@ update msg model =
     ApplyEvent -> idle <|
       let
         focus = model.focus
-        wlen = M.windowLens focus
-        treeId = M.getReprId focus (Lens.get wlen model).tree model
-        tree = M.getTree focus treeId model
-        getId = Lens.get M.nodeId
-        idSet = M.nodesIn tree
-        -- ^ get the list of IDs of all nodes in the selected tree
+        fileId = M.getFileId focus model
+        treeIds = Lens.get (M.fileLensAlt fileId => M.treeMap) model
+        -- ^ get the list of IDs (PartId type) of all trees in the focused file
       in
-        checkEvent (S.toList idSet) focus model
+        getTreeIds (D.keys treeIds) fileId focus model
 
     Popup x targetMaybe ->
         let
@@ -509,6 +506,18 @@ checkEvent idList focus model =
                 else
                   checkEvent xs focus model
 
+-- | Gets through the list of treeIds of a given file
+getTreeIds : List C.PartId -> C.FileId -> C.Focus -> M.Model -> M.Model
+getTreeIds treeIds fileId focus model =
+    case treeIds of
+      [] -> M.moveToFirst focus fileId model
+      (x::xs) ->
+        let
+          newModel = M.moveToTree focus fileId x model
+          tree = M.getTree focus x newModel
+          idSet = M.nodesIn tree
+        in
+          getTreeIds xs fileId focus <| checkEvent (S.toList idSet) focus newModel
 
 ----------------------------------------------
 -- Command
