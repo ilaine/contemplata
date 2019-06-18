@@ -262,6 +262,16 @@ update msg model =
         -- ^ get the list of IDs (PartId type) of all trees in the focused file
       in
         getTreeIds (D.keys treeIds) fileId focus model
+ 
+    PrepareTemp -> idle <|
+      let
+        focus = model.focus
+        fileId = M.getFileId focus model
+        treeIds = Lens.get (M.fileLensAlt fileId => M.treeMap) model
+        -- ^ get the list of IDs of all trees in the focused file
+      in
+        annotEvent (D.keys treeIds) fileId focus model
+          |> deepen (D.keys treeIds) fileId focus 
 
     Popup x targetMaybe ->
         let
