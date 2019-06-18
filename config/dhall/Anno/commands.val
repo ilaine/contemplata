@@ -110,6 +110,14 @@ in
     , _2 = simple {name = "ApplyEvent"}
     }
   , { _1 =
+      { keyCmd = [{char="m"}] : Optional ./KeyboardShortcut.typ
+      , lineCmd = ["preparetemp"] : Optional Text
+      , menuCmd = [] : Optional Text
+      , withCtrl = [] : Optional Bool
+      , help = [] : Optional Text }
+    , _2 = simple {name = "PrepareTemp"}
+    }
+  , { _1 =
       { keyCmd = [] : Optional ./KeyboardShortcut.typ
       , lineCmd = ["splitsent"] : Optional Text
       , menuCmd = ["Split sentence"] : Optional Text
