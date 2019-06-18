@@ -56,6 +56,7 @@ type Msg
   | ParseSentCons Server.ParserTyp  -- ^ Reparse the sentence in focus with the selected nodes as constraints
   | ApplyRules -- ^ Apply the (deepening) rules
   | ApplyEvent -- ^ Apply the automatic annotation of events
+  | PrepareTemp -- ^ Apply deepening rules and annotation of events
   | CtrlDown
   | CtrlUp
   -- | Connect
@@ -168,6 +169,7 @@ msgDecoder =
         , simple (ParseSentCons Server.DiscoDOP) "ParseSentConsDisco"
         , simple ApplyRules "ApplyRules"
         , simple ApplyEvent "ApplyEvent"
+        , simple PrepareTemp "PrepareTemp"
         , simple SplitTree "SplitTree"
         , simple SplitBegin "SplitBegin"
         , simple Compare "Compare"
