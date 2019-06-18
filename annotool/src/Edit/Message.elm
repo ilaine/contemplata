@@ -264,10 +264,10 @@ update msg model =
         treeId = M.getReprId focus (Lens.get wlen model).tree model
         tree = M.getTree focus treeId model
         getId = Lens.get M.nodeId
-        idList = List.map getId <| R.flatten tree
+        idSet = M.nodesIn tree
         -- ^ get the list of IDs of all nodes in the selected tree
       in
-        checkEvent idList focus model
+        checkEvent (S.toList idSet) focus model
 
     Popup x targetMaybe ->
         let
