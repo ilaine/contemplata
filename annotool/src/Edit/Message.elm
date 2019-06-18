@@ -244,18 +244,15 @@ update msg model =
         send = Server.sendWS model.config req
       in
         (model, send)
-
+        
     ApplyRules -> idle <|
       let
         focus = model.focus
         fileId = M.getFileId focus model
-        wlen = M.windowLens focus
-        treeId = M.getReprId focus (Lens.get wlen model).tree model
-        (newTree, newSel) = Rule.apply Rule.theRule (M.getTree focus treeId model)
-        updateSel win = {win | selAux = newSel, selMain = Nothing}
+        treeIds = Lens.get (M.fileLensAlt fileId => M.treeMap) model
+        -- ^ get the list of IDs of all trees in the focused file
       in
-        M.setTreeCheck fileId treeId newTree model
-          |> Lens.update wlen updateSel
+        deepen (D.keys treeIds) fileId focus model
 
     ApplyEvent -> idle <|
       let
@@ -476,6 +473,26 @@ firePopup popupRaw targetMaybe =
     in
         popCmd
 
+----------------------------------------------
+-- Deepen (recursivity)
+----------------------------------------------
+
+deepen : List C.PartId -> C.FileId -> C.Focus -> M.Model -> M.Model
+deepen treeIds fileId focus model =
+    case treeIds of
+      [] -> M.moveToFirst focus fileId model
+      -- [] -> model
+      (x::xs) ->
+        let
+          newModel = M.moveToTree focus fileId x model
+          tree = M.getTree focus x newModel
+          wlen = M.windowLens focus
+          -- treeId = M.getReprId focus (Lens.get wlen model).tree model
+          (newTree, newSel) = Rule.apply Rule.flatRule tree
+          updateSel win = {win | selAux = newSel, selMain = Nothing}
+        in
+          (M.setTreeCheck fileId x newTree newModel |> deepen xs fileId focus)
+            |> Lens.update wlen updateSel
 
 ----------------------------------------------
 -- Annotate Event
